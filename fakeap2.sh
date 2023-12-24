@@ -74,8 +74,8 @@ stop() {
   printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Killing all conections..\n" 
   killall dnsmasq hostapd > /dev/null 2>&1
   sleep 4
-printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Restarting Network-Manager..\n" 
-  service network-manager restart
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Restarting Network Service..\n" 
+  service networking restart
   sleep 5
 }
 
