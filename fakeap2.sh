@@ -178,4 +178,10 @@ start() {
   server
 }
 
-case "$1" in --stop) stop ;; *) banner dependencies start ;; esac
+case "$1" in --stop) stop ;; 
+*) 
+banner 
+dependencies 
+start
+ ;;
+ esac
