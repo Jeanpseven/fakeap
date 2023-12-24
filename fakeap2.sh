@@ -1,10 +1,9 @@
 #!/bin/bash
 
 list_folders() {
-  prilist_folders() {
   printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Pastas disponíveis:\e[0m\n"
   counter=1
-  for folder in $(find .sites -type d -name '*' -print); do
+  for folder in $(find sites -maxdepth 1 -type d -print); do
     login_page="$folder/login.php"
     if [[ -f "$login_page" ]]; then
       printf "\e[1;92m%s\e[0m: \e[1;77m%s (Página de Login Falsa)\n" $counter $folder
