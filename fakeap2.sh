@@ -1,6 +1,10 @@
 #!/bin/bash
 
 list_folders() {
+  if [ ! -d "sites" ]; then
+    mkdir sites
+  fi
+
   printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Pastas disponíveis:\e[0m\n"
   counter=1
   for folder in sites/*/; do
