@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# this versioon uses apache2
+# made by Wrench (jeanpseven)
+
 dependencies() {
   command -v php > /dev/null 2>&1 || { echo >&2 "É necessário ter o PHP instalado. Por favor, instale-o."; exit 1; }
   command -v dnsmasq > /dev/null 2>&1 || { echo >&2 "É necessário ter o dnsmasq instalado. Por favor, instale-o."; exit 1; }
