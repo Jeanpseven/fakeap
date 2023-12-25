@@ -90,18 +90,22 @@ start() {
     mkdir sites
   fi
 
-  counter=1
-  for i in sites/*/; do
-    printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter "$(basename "$i")"
-    let counter++
-  done
-
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha uma pasta:\e[0m ' chosen_folder
-  chosen_folder=$(sed -n "${chosen_folder}p" <(ls -d sites/*/))
+  chosen_folder="$1"
 
   if [ -z "$chosen_folder" ]; then
-    printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Pasta inválida.\n"
-    exit 1
+    counter=1
+    for i in .sites/*/; do
+      printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter "$(basename "$i")"
+      let counter++
+    done
+
+    read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha uma pasta:\e[0m ' chosen_folder
+    chosen_folder=$(sed -n "${chosen_folder}p" <(ls -d .sites/*/))
+
+    if [ -z "$chosen_folder" ]; then
+      printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Pasta inválida.\n"
+      exit 1
+    fi
   fi
 
   interface=$(ifconfig -a | sed 's/[ \t].*//;/^$/d' | tr -d ':' > iface)
@@ -109,8 +113,6 @@ start() {
   IFS=$'\n'
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] SSID a ser usado:\e[0m ' use_ssid
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Canal a ser usado:\e[0m ' use_channel
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Página de login (Padrão: login.php): \e[0m' login_page
-  login_page="${login_page:-login.php}"
   createpage "$chosen_folder"
   printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Finalizado: ./fakeap.sh --stop\n"
   printf "\e[1;92m[\e[0m*\e[1;92m] Iniciando servidor php...\n"
