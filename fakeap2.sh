@@ -1,5 +1,13 @@
 #!/bin/bash
 
+dependencies() {
+  command -v php > /dev/null 2>&1 || { echo >&2 "É necessário ter o PHP instalado. Por favor, instale-o."; exit 1; }
+  command -v dnsmasq > /dev/null 2>&1 || { echo >&2 "É necessário ter o dnsmasq instalado. Por favor, instale-o."; exit 1; }
+  command -v hostapd > /dev/null 2>&1 || { echo >&2 "É necessário ter o hostapd instalado. Por favor, instale-o."; exit 1; }
+  command -v airmon-ng > /dev/null 2>&1 || { echo >&2 "É necessário ter o airmon-ng instalado. Por favor, instale-o."; exit 1; }
+  command -v service > /dev/null 2>&1 || { echo >&2 "O comando 'service' não foi encontrado. Certifique-se de estar utilizando um sistema compatível."; exit 1; }
+}
+
 list_folders() {
   if [ ! -d "sites" ]; then
     mkdir sites
