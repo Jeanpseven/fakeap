@@ -90,22 +90,18 @@ start() {
     mkdir sites
   fi
 
-  chosen_folder="$1"
+  counter=1
+  for i in .sites/*/; do
+    printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter "$(basename "$i")"
+    let counter++
+  done
+
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha uma pasta:\e[0m ' chosen_folder_number
+  chosen_folder=$(sed -n "${chosen_folder_number}p" <(ls -d .sites/*/))
 
   if [ -z "$chosen_folder" ]; then
-    counter=1
-    for i in .sites/*/; do
-      printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter "$(basename "$i")"
-      let counter++
-    done
-
-    read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha uma pasta:\e[0m ' chosen_folder
-    chosen_folder=$(sed -n "${chosen_folder}p" <(ls -d .sites/*/))
-
-    if [ -z "$chosen_folder" ]; then
-      printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Pasta inválida.\n"
-      exit 1
-    fi
+    printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Pasta inválida.\n"
+    exit 1
   fi
 
   interface=$(ifconfig -a | sed 's/[ \t].*//;/^$/d' | tr -d ':' > iface)
