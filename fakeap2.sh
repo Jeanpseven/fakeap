@@ -139,7 +139,7 @@ start() {
   dnsmasq -C dnsmasq.conf -d > /dev/null 2>&1 &
   sleep 5
   printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] To Stop: ./fakeap.sh --stop\n"
-  ./fakeap.sh --server
+  sudo bash fakeap.sh --server
 }
 
 catch_cred() {
