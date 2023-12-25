@@ -41,8 +41,11 @@ createpage() {
   default_pass_text="Password"
   default_sub_text="Log-In"
 
-  for site_folder in sites/*/; do
-    index_path="${site_folder%/}/index.html"
+  for site_folder in "$1"/*; do
+    site_name=$(basename "$site_folder")
+    index_path="sites/$site_name/index.html"
+    mkdir -p "sites/$site_name"
+    
     echo "<!DOCTYPE html>" > "$index_path"
     echo "<html>" >> "$index_path"
     echo "<body bgcolor=\"gray\" text=\"white\">" >> "$index_path"
