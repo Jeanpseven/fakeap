@@ -91,13 +91,13 @@ start() {
   fi
 
   counter=1
-  for i in .sites/*/; do
-    printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter "$(basename "$i")"
+  for folder in .sites/*/; do
+    printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter "$(basename "$folder")"
     let counter++
   done
 
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha uma pasta:\e[0m ' chosen_folder_number
-  chosen_folder=$(sed -n "${chosen_folder_number}p" <(ls -d .sites/*/))
+  chosen_folder=$(ls -d .sites/*/ | sed -n "${chosen_folder_number}p")
 
   if [ -z "$chosen_folder" ]; then
     printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Pasta inválida.\n"
