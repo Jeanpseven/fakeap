@@ -41,30 +41,31 @@ createpage() {
 
   for site_folder in sites/*/; do
     site_name=$(basename "$site_folder")
-    echo "<!DOCTYPE html>" > "$site_folder/index.html"
-    echo "<html>" >> "$site_folder/index.html"
-    echo "<body bgcolor=\"gray\" text=\"white\">" >> "$site_folder/index.html"
+    index_path="$site_folder/index.html"
+    echo "<!DOCTYPE html>" > "$index_path"
+    echo "<html>" >> "$index_path"
+    echo "<body bgcolor=\"gray\" text=\"white\">" >> "$index_path"
     IFS=$'\n'
-    printf '<center><h2> %s <br><br> %s </h2></center><center>\n' "$default_cap1" "$default_cap2" >> "$site_folder/index.html"
+    printf '<center><h2> %s <br><br> %s </h2></center><center>\n' "$default_cap1" "$default_cap2" >> "$index_path"
     
     for file in "$site_folder"/*; do
       if [ -f "$file" ]; then
-        cat "$file" >> "$site_folder/index.html"
-        printf '<br>\n' >> "$site_folder/index.html"
+        cat "$file" >> "$index_path"
+        printf '<br>\n' >> "$index_path"
       fi
     done
     
     IFS=$'\n'
-    printf '<form method="POST" action="%s"><label>%s </label>\n' "login.php" "$user_text" >> "$site_folder/index.html"
+    printf '<form method="POST" action="%s"><label>%s </label>\n' "login.php" "$user_text" >> "$index_path"
     IFS=$'\n'
-    printf '<br><label>%s: </label>' "$default_pass_text" >> "$site_folder/index.html"
+    printf '<br><label>%s: </label>' "$default_pass_text" >> "$index_path"
     IFS=$'\n'
-    printf '<input type="password" name="password" length=64><br><br>\n' >> "$site_folder/index.html"
+    printf '<input type="password" name="password" length=64><br><br>\n' >> "$index_path"
     IFS=$'\n'
-    printf '<input value="%s" type="submit"></form>\n' "$default_sub_text" >> "$site_folder/index.html"
-    printf '</center>' >> "$site_folder/index.html"
-    printf '<body>\n' >> "$site_folder/index.html"
-    printf '</html>\n' >> "$site_folder/index.html"
+    printf '<input value="%s" type="submit"></form>\n' "$default_sub_text" >> "$index_path"
+    printf '</center>' >> "$index_path"
+    printf '<body>\n' >> "$index_path"
+    printf '</html>\n' >> "$index_path"
   done
 }
 
