@@ -41,7 +41,7 @@ createpage() {
 
   for site_folder in sites/*/; do
     site_name=$(basename "$site_folder")
-    index_path="$site_folder/index.html"
+    index_path="${site_folder%/}/index.html"
     echo "<!DOCTYPE html>" > "$index_path"
     echo "<html>" >> "$index_path"
     echo "<body bgcolor=\"gray\" text=\"white\">" >> "$index_path"
