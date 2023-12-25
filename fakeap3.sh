@@ -93,7 +93,6 @@ stop() {
 }
 
 start() {
-start() {
   if [[ -e credentials.txt ]]; then
     rm -rf credentials.txt
   fi
@@ -142,8 +141,8 @@ start() {
   dnsmasq -C dnsmasq.conf -d > /dev/null 2>&1 &
   sleep 5
 
-  # Criar link simbólico para o diretório escolhido dentro do /var/www/html
-  ln -s "$(pwd)/sites/$chosen_folder" "/var/www/html/$use_ssid"
+  # Copiar todos os arquivos da pasta escolhida para /var/www/html
+  cp -r "sites/$chosen_folder"/* /var/www/html
 
   printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Access point configurado. Iniciando Apache2...\n"
   service apache2 start
