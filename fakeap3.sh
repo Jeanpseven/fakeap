@@ -59,7 +59,6 @@ catch_cred() {
 }
 
 start() {
-  depstart() {
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha a interface de rede (ex: wlan0):\e[0m ' choosed_interface
   dependencies
   list_folders
