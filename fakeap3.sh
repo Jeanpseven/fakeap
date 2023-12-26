@@ -89,4 +89,8 @@ start() {
   server
 }
 
-case "$1" in --stop) stop ;; *) start ;; esac
+case "$1" in --stop) stop ;; 
+*)
+start 
+;;
+esac
