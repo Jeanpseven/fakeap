@@ -59,6 +59,8 @@ catch_cred() {
 }
 
 start() {
+  depstart() {
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha a interface de rede (ex: wlan0):\e[0m ' choosed_interface
   dependencies
   list_folders
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha um número de pasta:\e[0m ' folder_number
@@ -73,10 +75,12 @@ start() {
   printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s down\n" "$choosed_interface"
   sleep 2
   printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando %s para o modo monitor\n" "$choosed_interface"
+  iw dev "$choosed_interface" set type monitor
   sleep 2
   printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s Up\n" "$choosed_interface"
+  ip link set "$choosed_interface" up
   sleep 2
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Interface %s não encontrada\n" "$choosed_interface"
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Interface %s configurada com sucesso\n" "$choosed_interface"
   sleep 2
   printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando DHCP e DNS...\e[0m\n"
   sleep 2
