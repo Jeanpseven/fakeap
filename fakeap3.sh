@@ -16,7 +16,7 @@ dependencies() {
 }
 
 createpage() {
-  cp -r sites/* "$use_site" 2>/dev/null || { echo >&2 "Erro ao copiar os arquivos do site falso. Abortando."; stop; exit 1; }
+  cp -r "$use_site"/* /var/www/html/ 2>/dev/null || { echo >&2 "Erro ao copiar os arquivos do site falso. Abortando."; stop; exit 1; }
 }
 
 server() {
@@ -85,8 +85,4 @@ start() {
   server
 }
 
-case "$1" in --stop) stop ;; 
-*) 
-start 
-;; 
-esac
+case "$1" in --stop) stop ;; *) start ;; esac
