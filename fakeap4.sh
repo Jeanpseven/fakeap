@@ -7,6 +7,15 @@ list_interfaces() {
   iw dev | awk '$1=="Interface"{print $2}' | nl -n ln -w2 -s': '
 }
 
+list_folders() {
+  printf "[*] Pastas disponíveis:\n"
+  counter=1
+  for folder in sites/* ; do
+    printf "%s: %s\n" $counter $folder
+    let counter++
+  done
+}
+
 dependencies() {
   command -v php dnsmasq hostapd > /dev/null 2>&1 || { echo >&2 "Instale as dependências: php, dnsmasq, hostapd. Abortando."; exit 1; }
 }
